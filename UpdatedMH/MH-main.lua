@@ -7,15 +7,15 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 --GlobalVariables
 local AutoRebirthEnabled = false
 local isCalculated = false
-local MoneyRequired = nil
+local MoneyRequired
 local AutoPulseEnabled = false
-local MoneyLayout =  nil
+local MoneyLayout
 local BoxAutoFarm = false
 local MainLayout = "Layout1"
 local MainLayoutDelay = 3
 local LocalPlayer = Players.LocalPlayer
 local HumanoidRootPart = Workspace[LocalPlayer.Name].HumanoidRootPart
-local Factory = nil
+local Factory
 local LifesSkipping = 0
 Suffix = { "Qn", "sx", "Sp", "O", "N", "de", "Ud", "DD", "tdD", "qdD", "QnD", "sxD", "SpD", "OcD", "NvD", "Vgn", "UVg",
     "DVg", "TVg", "qtV", "QnV", "SeV", "SPG", "OVG", "NVG", "TGN", "UTG", "DTG", "tsTG", "qtTG", "QnTG", "ssTG", "SpTG",
@@ -30,7 +30,7 @@ for i, v in pairs(Workspace.Tycoons:GetChildren()) do --Getting the LocalPlayers
     end
 end
 
-game:GetService("Players").LocalPlayer.Idled:Connect(function()
+LocalPlayer.Idled:Connect(function() --AntiAfk
     game:GetService("VirtualUser"):Button2Down(Vector2.new(0, 0), Workspace.CurrentCamera.CFrame)
     wait(1)
     game:GetService("VirtualUser"):Button2Up(Vector2.new(0, 0), Workspace.CurrentCamera.CFrame)
@@ -88,8 +88,7 @@ function BoxTp()
     end)
 end
 
---Dynamic Player Table Handling
-local Players = Players:GetChildren()
+local Players = Players:GetChildren() --Dynamic Player Table Handling
 
 Players.PlayerAdded:Connect(function(Name)
 Players[Name] = Name
@@ -98,4 +97,3 @@ end)
 Players.PlayerRemoving:Connect(function(Name)
 Players[Name] = nil
 end)
---
