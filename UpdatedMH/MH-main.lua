@@ -74,7 +74,7 @@ end
 
 function BoxTp()
     spawn(function()
-        while wait(0.1) do
+        while wait(1) do
             if not BoxAutoFarm then break end
             local Boxes = Workspace.Boxes:GetChildren()
             if #Boxes > 0 then
@@ -97,3 +97,95 @@ end)
 Players.PlayerRemoving:Connect(function(Name)
 Players[Name] = nil
 end)
+-- Ui
+local ArrayField = loadstring(game:HttpGet('https://raw.githubusercontent.com/UI-Interface/ArrayField/main/Source.lua'))()
+
+local MHClient = ArrayField:CreateMHClient({
+    Name = "Miner's Haven Client",
+    LoadingTitle = "Loading Client",
+    LoadingSubtitle = "by wert",
+    ConfigurationSaving = {Enabled = false,FolderName = nil,FileName = "ArrayField"},
+    Discord = {Enabled = false,Invite = "noinvitelink", RememberJoins = true },
+    KeySystem = false, 
+    KeySettings = {Title = "Untitled",Subtitle = "Key System",Note = "No method of obtaining the key is provided",FileName = "Key",SaveKey = false, GrabKeyFromSite = false, 
+       Actions = {
+             [1] = {
+                 Text = 'Click here to copy the key link <--',
+                 OnPress = function()
+                     print('Pressed')
+                 end,
+                 }
+             },
+       Key = {"wert"}
+    }
+ })
+
+ local Automation = MHClient:CreateTab("Automation", 4483362458)
+ local AutoRebirthSettings = Automation:CreateSection("Auto Rebirth Settings",true)
+ local AutoRebirthToggle = Automation:CreateToggle({
+    Name = "Auto Rebirth",
+    CurrentValue = false,
+    Flag = "AutoRebirthState", 
+    Callback = function(Value)
+    AutoRebirthEnabled = Value
+    AutoRebirth()
+    AutoLayout()
+    end,
+ })
+
+ local MainLayoutDropdown = Automation:CreateDropdown({
+    Name = "DMain Layout",
+    Options = {"Layout1","Layout2","Layout3"},
+    CurrentOption = "Layout1",
+    MultiSelection = false, 
+    Flag = "MainLayoutState", 
+    Callback = function(Option)
+    MainLayout = Option
+    end,
+ })
+
+ local MoneyLayoutDropdown = Automation:CreateDropdown({
+    Name = "Main Layout",
+    Options = {"None","Layout1","Layout2","Layout3"},
+    CurrentOption = "None",
+    MultiSelection = false, 
+    Flag = "MoneyLayoutState", 
+    Callback = function(Option)
+    MoneyLayout = Option
+    end,
+ })
+
+ local MainLayoutDelayInput = Automation:CreateInput({
+    Name = "Main Layout Delay",
+    PlaceholderText = "Delay",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(Text)
+    if tonumber(Text) then 
+        MainLayoutDelay = tonumber(Text) 
+    else
+        ArrayField:Notify({
+        Title = "Error",
+        Content = "You didnt enter a number,are you dumb?",
+        Duration = 6.5,
+        Image = 4483362458,
+        Actions={Ignore = {Name = "Yes",Callback = function() end},},})
+        end
+    end,
+ })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
