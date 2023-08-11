@@ -41,7 +41,7 @@ end
 
 local isCalculated = false
 local AutoPulseEnabled = false
-local MoneyLayout
+local MoneyLayout = "None"
 local MainLayout = "Layout1"
 local MainLayoutDelay = 3
 local Factory
@@ -52,7 +52,7 @@ function AutoLayout()
         while task.wait() do
             if not AutoRebirthEnabled then break end
             if Factory:FindFirstChildWhichIsA("Model") then
-                if MoneyLayout then ReplicatedStorage.Layouts:InvokeServer("Load",MoneyLayout); wait(MainLayoutDelay); end
+                if MoneyLayout ~= "None" then ReplicatedStorage.Layouts:InvokeServer("Load",MoneyLayout); wait(MainLayoutDelay); end
                 game:GetService("ReplicatedStorage").Layouts:InvokeServer("Load",MainLayout)
                 if AutoPulseEnabled then end
             end
@@ -88,17 +88,15 @@ function BoxTp()
     end)
 end
 
-Players.PlayerAdded:Connect(function(Name) --Dynamic Player Dropdown Handling
-Players[Name] = Name
-end)
-
-Players.PlayerRemoving:Connect(function(Name)
-Players[Name] = nil
-end)
+local Players = {}
+for i,v in pairs(Players:GetChildren()) do
+    local DisplayName = v.DisplayName or v.Name
+    Players[i] = "@" .. DisplayName .. "(" .. v.Name ..")"
+end
 
 local DynamicPlayerDropdown = Tab:CreateDropdown({
-    Name = "Main Layout",
-    Options = Players:GetChildren(),
+    Name = "Select Player",
+    Options = Players,
     CurrentOption = nil,
     MultiSelection = false, 
     Flag = "DynamicPlayerDropdownState", 
@@ -106,6 +104,16 @@ local DynamicPlayerDropdown = Tab:CreateDropdown({
     PlayerSelected = Option
     end,
  })
+
+ Players.PlayerAdded:Connect(function(Player) --Dynamic Player Dropdown Handling
+    local DisplayName  = Player.DisplayName or Player.Name
+    DynamicPlayerDropdown:Add("@" .. DisplayName .. "(" .. Player.Name ..")")
+end)
+
+Players.PlayerRemoving:Connect(function(Player)
+    local DisplayName  = Player.DisplayName or Player.Name
+    DynamicPlayerDropdown:Remove("@" .. DisplayName .. "(" .. Player.Name ..")")
+end)
 
 -- Ui
 local ArrayField = loadstring(game:HttpGet('https://raw.githubusercontent.com/UI-Interface/ArrayField/main/Source.lua'))()
