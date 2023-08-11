@@ -6,17 +6,10 @@ local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 --GlobalVariables
 local AutoRebirthEnabled = false
-local isCalculated = false
-local MoneyRequired
-local AutoPulseEnabled = false
-local MoneyLayout
 local BoxAutoFarm = false
-local MainLayout = "Layout1"
-local MainLayoutDelay = 3
+local PlayerSelected
 local LocalPlayer = Players.LocalPlayer
 local HumanoidRootPart = Workspace[LocalPlayer.Name].HumanoidRootPart
-local Factory
-local LifesSkipping = 0
 Suffix = { "Qn", "sx", "Sp", "O", "N", "de", "Ud", "DD", "tdD", "qdD", "QnD", "sxD", "SpD", "OcD", "NvD", "Vgn", "UVg",
     "DVg", "TVg", "qtV", "QnV", "SeV", "SPG", "OVG", "NVG", "TGN", "UTG", "DTG", "tsTG", "qtTG", "QnTG", "ssTG", "SpTG",
     "OcTG", "NoTG", "QdDR", "uQDR", "dQDR", "tQDR", "qdQDR", "QnQDR", "sxQDR", "SpQDR", "OQDDr", "NQDDr", "qQGNT",
@@ -24,11 +17,6 @@ Suffix = { "Qn", "sx", "Sp", "O", "N", "de", "Ud", "DD", "tdD", "qdD", "QnD", "s
     "DSXGNTL", "TSXGNTL", "QTSXGNTL", "QNSXGNTL", "SXSXGNTL", "SPSXGNTL", "OSXGNTL", "NVSXGNTL", "SPTGNTL", "USPTGNTL",
     "DSPTGNTL", "TSPTGNTL", "QTSPTGNTL", "QNSPTGNTL", "SXSPTGNTL", "SPSPTGNTL", "OSPTGNTL", "NVSPTGNTL" }
 --
-for i, v in pairs(Workspace.Tycoons:GetChildren()) do --Getting the LocalPlayers Factory
-    if v:FindFirstChild("Owner") and v:FindFirstChild("Owner").Value == game.Players.LocalPlayer.Name then
-        Factory = v
-    end
-end
 
 LocalPlayer.Idled:Connect(function() --AntiAfk
     game:GetService("VirtualUser"):Button2Down(Vector2.new(0, 0), Workspace.CurrentCamera.CFrame)
@@ -36,17 +24,29 @@ LocalPlayer.Idled:Connect(function() --AntiAfk
     game:GetService("VirtualUser"):Button2Up(Vector2.new(0, 0), Workspace.CurrentCamera.CFrame)
 end)
 
-function MoneyRequired() --Getting the reqired money to rebirth
+local MoneyRequired
+local LifesSkipping = 0
+
+function MoneyRequired()
     local RebornString = Players.LocalPlayer.PlayerGui.GUI.Settings.Menu.PrimaryUtil.Rebirth.Reborn.Text
-    if string.find(RebornString,"e+") then return tonumber(RebornString) end
+    if tonumber(RebornString) then return tonumber(RebornString) end
     RebornString = RebornString:gsub('%s', " "):gsub('Reborn', " "):gsub('%$', "")
     local RebornOperator = string.match(RebornString, "%a+")
     for i, v in pairs(Suffix) do
         if RebornOperator ~= v then continue end
-            return tonumber(string.match(RebornString, "%d+") .. string.rep("0", i * 3 + LifesSkipping))
+            return tonumber(string.match(RebornString, "%d+")) * (math.pow(1000,5+i+LifesSkipping)) --the 5 represents the 5th suffix in the game(Qd),neccesary for proper calculation
     end
     print("Failed to convert")
 end
+
+local isCalculated = false
+local AutoPulseEnabled = false
+local MoneyLayout
+local MainLayout = "Layout1"
+local MainLayoutDelay = 3
+local Factory
+local AutoPulseEnabled
+for _, v in pairs(Workspace.Tycoons:GetChildren()) do if v:FindFirstChild("Owner") and v:FindFirstChild("Owner").Value == game.Players.LocalPlayer.Name then Factory = v end end
 function AutoLayout()
     spawn(function()
         while task.wait() do
@@ -88,15 +88,25 @@ function BoxTp()
     end)
 end
 
-local Players = Players:GetChildren() --Dynamic Player Table Handling
-
-Players.PlayerAdded:Connect(function(Name)
+Players.PlayerAdded:Connect(function(Name) --Dynamic Player Dropdown Handling
 Players[Name] = Name
 end)
 
 Players.PlayerRemoving:Connect(function(Name)
 Players[Name] = nil
 end)
+
+local DynamicPlayerDropdown = Tab:CreateDropdown({
+    Name = "Main Layout",
+    Options = Players:GetChildren(),
+    CurrentOption = nil,
+    MultiSelection = false, 
+    Flag = "DynamicPlayerDropdownState", 
+    Callback = function(Option)
+    PlayerSelected = Option
+    end,
+ })
+
 -- Ui
 local ArrayField = loadstring(game:HttpGet('https://raw.githubusercontent.com/UI-Interface/ArrayField/main/Source.lua'))()
 
@@ -134,7 +144,7 @@ local MHClient = ArrayField:CreateMHClient({
  })
 
  local MainLayoutDropdown = Automation:CreateDropdown({
-    Name = "DMain Layout",
+    Name = "Main Layout",
     Options = {"Layout1","Layout2","Layout3"},
     CurrentOption = "Layout1",
     MultiSelection = false, 
@@ -166,9 +176,9 @@ local MHClient = ArrayField:CreateMHClient({
         ArrayField:Notify({
         Title = "Error",
         Content = "You didnt enter a number,are you dumb?",
-        Duration = 6.5,
+        Duration = 999,
         Image = 4483362458,
-        Actions={Ignore = {Name = "Yes",Callback = function() end},},})
+        Actions={Ignore = {Name = "Yes",Callback = function() print("You are dumb!") end},},})
         end
     end,
  })
